@@ -58,8 +58,8 @@ const LocationDetailsScreen = ({ route }) => {
       <Text style={styles.title}>{location.name}</Text>
       <Text style={styles.address}>{location.address}</Text>
 
-      <Text style={styles.coords}>Lat: {location.latitude}</Text>
-      <Text style={styles.coords}>Lng: {location.longitude}</Text>
+      <Text style={styles.coords}>Latitude: {location.latitude}</Text>
+      <Text style={styles.coords}>Longtitude: {location.longitude}</Text>
 
       <View style={styles.buttonContainer}>
         <Button title="Open in Google Maps" onPress={openInGoogleMaps} />

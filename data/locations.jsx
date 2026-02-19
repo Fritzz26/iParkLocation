@@ -6,7 +6,7 @@ import RobinsonsOPUSImage from "../assets/RobinsonsOPUS.jpg";
 export const locations = [
   {
     id: 1,
-    name: "iPark - Araneta City",
+    name: "Araneta City",
     latitude: 14.6209,
     longitude: 121.0526,
     address: "Araneta City, Quezon City, Philippines",
@@ -15,7 +15,7 @@ export const locations = [
   },
   {
     id: 2,
-    name: "iPark - Fishermall",
+    name: "Fishermall",
     latitude: 14.6760,
     longitude: 121.0437,
     address: "Fishermall, Quezon City, Philippines",
@@ -24,7 +24,7 @@ export const locations = [
   },
   {
     id: 3,
-    name: "iPark - Robinsons Galleria",
+    name: "Robinsons Galleria",
     latitude: 14.5960,
     longitude: 121.0371,
     address: "Robinsons Galleria, Quezon City, Philippines",
@@ -33,12 +33,11 @@ export const locations = [
   },
   {
     id: 4,
-    name: "iPark - Robinsons OPUS",
-    latitude: 14.5929,
-    longitude: 121.0808,
-    address:
-      "Robinsons OPUS / Opus Mall, Quezon City / Pasig City, Philippines",
-    image:
-      RobinsonsOPUSImage,
+    name: "Robinsons OPUS",
+    latitude: 14.593264342773113,
+    longitude: 121.08024890163165,
+    address: "Robinsons OPUS, Bridgetowne, Quezon City, Philippines",
+    image: RobinsonsOPUSImage,
   },
+
 ];

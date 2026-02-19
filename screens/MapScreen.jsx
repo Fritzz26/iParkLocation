@@ -94,7 +94,7 @@ const MapScreen = ({ navigation }) => {
             }}
           >
             <Image
-              source={require("../assets/iPark Logo.png")}
+              source={require("../assets/iParkPinWhiteBlue.png")}
               style={styles.logo}
               resizeMode="contain"
             />
@@ -146,7 +146,7 @@ const styles = StyleSheet.create({
 
   logo: {
     width: 50,
-    height: 50,
+    height: 40,
   },
 
   callout: {

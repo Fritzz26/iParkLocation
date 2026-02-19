@@ -11,7 +11,7 @@ const App = () => {
   return (
     <NavigationContainer>
       <Stack.Navigator>
-        <Stack.Screen name="Map" component={MapScreen} />
+        <Stack.Screen name="iPark Map" component={MapScreen} />
         <Stack.Screen name="Details" component={LocationDetailsScreen} />
       </Stack.Navigator>
     </NavigationContainer>
