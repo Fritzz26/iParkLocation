@@ -145,8 +145,8 @@ const styles = StyleSheet.create({
   map: { flex: 1 },
 
   logo: {
-    width: 80,
-    height: 80,
+    width: 50,
+    height: 50,
   },
 
   callout: {
