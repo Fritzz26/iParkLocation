@@ -21,6 +21,7 @@ import {
 import MapView, { Marker } from "react-native-maps";
 import Geolocation from "@react-native-community/geolocation";
 import { locations } from "../data/locations";
+import LocationDetailsModal from "./LocationDetailsScreen"; // adjust the path if needed
 
 const { height: screenHeight } = Dimensions.get("window");
 
@@ -31,7 +32,7 @@ const MapScreen = () => {
   const FULL_HEIGHT = screenHeight * 0.9;
 
   const translateY = useRef(new Animated.Value(screenHeight)).current;
-  const startY = useRef(0); // capture initial position when drag starts
+  const startY = useRef(0);
 
   const colorScheme = useColorScheme();
   const isDark = colorScheme === "dark";
@@ -52,12 +53,8 @@ const MapScreen = () => {
       const granted = await PermissionsAndroid.request(
         PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION
       );
-      if (granted === PermissionsAndroid.RESULTS.GRANTED) {
-        getCurrentLocation();
-      }
-    } else {
-      getCurrentLocation();
-    }
+      if (granted === PermissionsAndroid.RESULTS.GRANTED) getCurrentLocation();
+    } else getCurrentLocation();
   };
 
   const getCurrentLocation = () => {
@@ -81,14 +78,13 @@ const MapScreen = () => {
 
   const handleSearch = (text) => {
     setSearch(text);
-    if (text.length > 0) {
-      const filtered = locations.filter((loc) =>
-        loc.name.toLowerCase().includes(text.toLowerCase())
-      );
-      setFilteredLocations(filtered);
-    } else {
-      setFilteredLocations([]);
-    }
+    setFilteredLocations(
+      text.length > 0
+        ? locations.filter((loc) =>
+          loc.name.toLowerCase().includes(text.toLowerCase())
+        )
+        : []
+    );
   };
 
   const handleSelectLocation = (location) => {
@@ -104,8 +100,6 @@ const MapScreen = () => {
     setSearch(location.name);
     setFilteredLocations([]);
   };
-
-  // ------------------ MODAL FUNCTIONS ------------------
 
   const openModal = (location) => {
     setSelectedLocation(location);
@@ -127,43 +121,32 @@ const MapScreen = () => {
     }).start(() => setModalVisible(false));
   };
 
-  // ------------------ PANRESPONDER FOR DRAG INDICATOR ONLY ------------------
-
   const panResponder = useRef(
     PanResponder.create({
       onStartShouldSetPanResponder: () => true,
       onMoveShouldSetPanResponder: (_, gesture) => Math.abs(gesture.dy) > 5,
       onPanResponderGrant: () => {
         translateY.stopAnimation((current) => {
-          startY.current = current; // store current translateY at drag start
+          startY.current = current;
         });
       },
       onPanResponderMove: (_, gesture) => {
-        let newPosition = startY.current + gesture.dy;
-        if (newPosition < screenHeight - FULL_HEIGHT) newPosition = screenHeight - FULL_HEIGHT;
-        if (newPosition > screenHeight) newPosition = screenHeight;
-        translateY.setValue(newPosition);
+        let newPos = startY.current + gesture.dy;
+        if (newPos < screenHeight - FULL_HEIGHT) newPos = screenHeight - FULL_HEIGHT;
+        if (newPos > screenHeight) newPos = screenHeight;
+        translateY.setValue(newPos);
       },
       onPanResponderRelease: (_, gesture) => {
         const currentY = startY.current + gesture.dy;
+        const halfPos = screenHeight - HALF_HEIGHT;
+        const fullPos = screenHeight - FULL_HEIGHT;
         if (gesture.dy < -50) {
-          // swipe up
-          Animated.timing(translateY, {
-            toValue: screenHeight - FULL_HEIGHT,
-            duration: 250,
-            useNativeDriver: true,
-          }).start();
+          Animated.timing(translateY, { toValue: fullPos, duration: 250, useNativeDriver: true }).start();
         } else if (gesture.dy > 50) {
-          // swipe down
           closeModal();
         } else {
-          // snap to nearest: half or full
-          const halfPosition = screenHeight - HALF_HEIGHT;
-          const fullPosition = screenHeight - FULL_HEIGHT;
-          const distanceToHalf = Math.abs(currentY - halfPosition);
-          const distanceToFull = Math.abs(currentY - fullPosition);
           Animated.timing(translateY, {
-            toValue: distanceToHalf < distanceToFull ? halfPosition : fullPosition,
+            toValue: Math.abs(currentY - halfPos) < Math.abs(currentY - fullPos) ? halfPos : fullPos,
             duration: 250,
             useNativeDriver: true,
           }).start();
@@ -172,50 +155,34 @@ const MapScreen = () => {
     })
   ).current;
 
-  // ------------------ TAP DRAG INDICATOR ------------------
-
   const toggleModalHeight = () => {
     if (!selectedLocation) return;
-
     translateY.stopAnimation((current) => {
-      const FULL_POSITION = screenHeight - FULL_HEIGHT;
-      const HALF_POSITION = screenHeight - HALF_HEIGHT;
-
-      if (current > FULL_POSITION + 10) {
-        // snap to full
-        Animated.timing(translateY, {
-          toValue: FULL_POSITION,
-          duration: 250,
-          useNativeDriver: true,
-        }).start();
-      } else {
-        // snap to half
-        Animated.timing(translateY, {
-          toValue: HALF_POSITION,
-          duration: 250,
-          useNativeDriver: true,
-        }).start();
-      }
+      const fullPos = screenHeight - FULL_HEIGHT;
+      const halfPos = screenHeight - HALF_HEIGHT;
+      Animated.timing(translateY, {
+        toValue: current > fullPos + 10 ? fullPos : halfPos,
+        duration: 250,
+        useNativeDriver: true,
+      }).start();
     });
   };
 
   const openInGoogleMaps = () => {
     if (!selectedLocation) return;
-    const url = `https://www.google.com/maps/search/?api=1&query=${selectedLocation.latitude},${selectedLocation.longitude}`;
-    Linking.openURL(url);
+    Linking.openURL(
+      `https://www.google.com/maps/search/?api=1&query=${selectedLocation.latitude},${selectedLocation.longitude}`
+    );
   };
 
   return (
     <View style={styles.container}>
-      {/* 🔎 Search */}
+      {/* Search */}
       <View style={styles.searchContainer}>
         <TextInput
           style={[
             styles.searchInput,
-            {
-              backgroundColor: isDark ? "#1e1e1e" : "#fff",
-              color: isDark ? "#fff" : "#000",
-            },
+            { backgroundColor: isDark ? "#1e1e1e" : "#fff", color: isDark ? "#fff" : "#000" },
           ]}
           placeholder="Search location..."
           placeholderTextColor={isDark ? "#aaa" : "#555"}
@@ -228,10 +195,7 @@ const MapScreen = () => {
               data={filteredLocations}
               keyExtractor={(item) => item.id.toString()}
               renderItem={({ item }) => (
-                <TouchableOpacity
-                  style={styles.resultItem}
-                  onPress={() => handleSelectLocation(item)}
-                >
+                <TouchableOpacity style={styles.resultItem} onPress={() => handleSelectLocation(item)}>
                   <Text>{item.name}</Text>
                 </TouchableOpacity>
               )}
@@ -240,7 +204,7 @@ const MapScreen = () => {
         )}
       </View>
 
-      {/* 🗺 Map */}
+      {/* Map */}
       <MapView
         ref={mapRef}
         style={styles.map}
@@ -253,85 +217,47 @@ const MapScreen = () => {
           longitudeDelta: 0.5,
         }}
       >
-        {locations.map((location) => (
+        {locations.map((loc) => (
           <Marker
-            key={location.id}
-            coordinate={{ latitude: location.latitude, longitude: location.longitude }}
+            key={loc.id}
+            coordinate={{ latitude: loc.latitude, longitude: loc.longitude }}
             anchor={{ x: 0.5, y: 1 }}
-            onPress={() => {
-              mapRef.current?.animateToRegion(
-                { latitude: location.latitude, longitude: location.longitude, latitudeDelta: 0.05, longitudeDelta: 0.05 },
-                800
-              );
-              openModal(location);
-            }}
+            onPress={() => openModal(loc)}
           >
-            <Image
-              source={require("../assets/iParkPinWhiteBlue.png")}
-              style={{ width: 50, height: 50 }}
-              resizeMode="contain"
-            />
+            <Image source={require("../assets/iParkPinWhiteBlue.png")} style={{ width: 40, height: 40 }} resizeMode="contain" />
           </Marker>
         ))}
       </MapView>
 
-      {/* 📍 Location Button */}
+      {/* My Location */}
       <TouchableOpacity style={styles.locationButton} onPress={getCurrentLocation}>
         <Image
-          source={
-            isCentered
-              ? require("../assets/location black.png") // when centered
-              : require("../assets/location white.png") // when not centered
-          }
+          source={isCentered ? require("../assets/location black.png") : require("../assets/location white.png")}
           style={{ width: 24, height: 24 }}
         />
       </TouchableOpacity>
 
-      {/* 🔥 BOTTOM MODAL */}
+      {/* Bottom Modal */}
       <Modal transparent visible={modalVisible} animationType="none">
         <View style={styles.modalOverlay}>
           <TouchableOpacity style={{ flex: 1 }} onPress={closeModal} />
-
           <Animated.View style={[styles.bottomSheet, { transform: [{ translateY }] }]}>
-            {/* DRAG INDICATOR ONLY */}
             <View {...panResponder.panHandlers}>
               <TouchableOpacity onPress={toggleModalHeight} activeOpacity={0.7}>
                 <View style={styles.dragIndicator} />
               </TouchableOpacity>
             </View>
 
-            {selectedLocation && (
-              <ScrollView>
-                <Text style={styles.title}>{selectedLocation.name}</Text>
-                <Text style={styles.address}>{selectedLocation.address}</Text>
-                <Text>{selectedLocation.parkingType}</Text>
-                <Text style={{ color: "green" }}>{selectedLocation.openingHours}</Text>
-
-                <TouchableOpacity style={styles.customButton} onPress={openInGoogleMaps}>
-                  <Text style={styles.customButtonText}>Open in Google Maps</Text>
-                </TouchableOpacity>
-
-                <View style={{ marginTop: 15 }}>
-                  {loadingImage && <ActivityIndicator size="large" />}
-                  <Image
-                    source={typeof selectedLocation.image === "number" ? selectedLocation.image : { uri: selectedLocation.image }}
-                    style={styles.image}
-                    resizeMode="cover"
-                    onLoadEnd={() => setLoadingImage(false)}
-                  />
-                </View>
-              </ScrollView>
-            )}
+            {selectedLocation && <LocationDetailsModal location={selectedLocation} />}
           </Animated.View>
         </View>
       </Modal>
-    </View>
+    </View >
   );
 };
 
 export default MapScreen;
 
-// ------------------- STYLES -------------------
 const styles = StyleSheet.create({
   container: { flex: 1 },
   map: { flex: 1 },
@@ -355,12 +281,22 @@ const styles = StyleSheet.create({
   },
 
   modalOverlay: { flex: 1, backgroundColor: "rgba(0,0,0,0.4)", justifyContent: "flex-end" },
-  bottomSheet: { position: "absolute", bottom: 0, width: "100%", height: "90%", backgroundColor: "#fff", borderTopLeftRadius: 30, borderTopRightRadius: 30, padding: 20 },
-  dragIndicator: { width: 50, height: 5, backgroundColor: "#ccc", alignSelf: "center", borderRadius: 3, marginBottom: 10 },
+  bottomSheet: {
+    position: "absolute",
+    bottom: 0,
+    width: "100%",
+    height: Platform.OS === "ios" ? "95%" : "103%",
+    backgroundColor: "#fff",
+    borderTopLeftRadius: 30,
+    borderTopRightRadius: 30,
+    padding: 20,
+  },
+  dragIndicator: { width: 50, height: 8, backgroundColor: "#ccc", alignSelf: "center", borderRadius: 3, marginBottom: 0 },
 
   title: { fontSize: 22, fontWeight: "bold" },
   address: { marginBottom: 10, color: "#555" },
   image: { width: "100%", height: 220, borderRadius: 15 },
+  imageBorderLine: { borderBottomWidth: 1, borderBottomColor: "#ccc", marginTop: 10 }, // <--- Added borderline
   customButton: { backgroundColor: "#007AFF", padding: 12, borderRadius: 20, alignItems: "center", marginTop: 15 },
   customButtonText: { color: "#fff", fontWeight: "bold" },
 });

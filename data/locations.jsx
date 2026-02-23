@@ -12,8 +12,8 @@ export const locations = [
     address: "Araneta City, Quezon City, Philippines",
     parkingType: "Parking Type: Slot Parking",
     openingHours: "Opening Hours: 10:00 AM - 9:00 PM",
-    image:
-      AranetaImage
+    rentDetails: "Rent Type: Hourly Rent\n\nInitial Charge: P30 First 3 Hours\n\nSucceeding Charges: P50 Every 1 Hour",
+    image: AranetaImage,
   },
   {
     id: 2,
@@ -23,8 +23,8 @@ export const locations = [
     address: "Fishermall, Quezon City, Philippines",
     parkingType: "Parking Type: Slot Parking",
     openingHours: "Opening Hours: 10:00 AM - 9:00 PM",
-    image:
-      FishermallImage,
+    rentDetails: "Rent Type: Hourly Rent\n\nInitial Charge: P30 First 3 Hours\n\nSucceeding Charges: P50 Every 1 Hour",
+    image: FishermallImage,
   },
   {
     id: 3,
@@ -34,8 +34,8 @@ export const locations = [
     address: "Robinsons Galleria, Quezon City, Philippines",
     parkingType: "Parking Type: Slot Parking",
     openingHours: "Opening Hours: 10:00 AM - 9:00 PM",
-    image:
-      RobinsonsGalleriaImage,
+    rentDetails: "Rent Type: Hourly Rent\n\nInitial Charge: P30 First 3 Hours\n\nSucceeding Charges: P50 Every 1 Hour",
+    image: RobinsonsGalleriaImage,
   },
   {
     id: 4,
@@ -45,7 +45,7 @@ export const locations = [
     address: "Robinsons OPUS, Bridgetowne, Quezon City, Philippines",
     parkingType: "Parking Type: Slot Parking",
     openingHours: "Opening Hours: 10:00 AM - 9:00 PM",
+    rentDetails: "Rent Type: Hourly Rent\n\nInitial Charge: P30 First 3 Hours\n\nSucceeding Charges: P50 Every 1 Hour",
     image: RobinsonsOPUSImage,
   },
-
 ];

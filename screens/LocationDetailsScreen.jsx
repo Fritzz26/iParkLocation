@@ -1,32 +1,33 @@
+// LocationDetailsModal.jsx
 import React, { useState } from "react";
 import {
   View,
   Text,
   StyleSheet,
-  Linking,
   Image,
   ScrollView,
   ActivityIndicator,
   TouchableOpacity,
+  Linking,
 } from "react-native";
 
-const LocationDetailsScreen = ({ route }) => {
-  const { location } = route.params;
+const LocationDetailsModal = ({ location }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
+
+  if (!location) return null;
 
   const openInGoogleMaps = () => {
     const url = `https://www.google.com/maps/search/?api=1&query=${location.latitude},${location.longitude}`;
     Linking.openURL(url);
   };
 
-  // Determine image source: local or remote
   let imageSource;
   if (location.image) {
     if (typeof location.image === "number") {
-      imageSource = location.image; // local
+      imageSource = location.image;
     } else if (typeof location.image === "string" && location.image.startsWith("http")) {
-      imageSource = { uri: location.image }; // remote
+      imageSource = { uri: location.image };
     } else {
       imageSource = { uri: "https://via.placeholder.com/400x250.png?text=No+Image" };
     }
@@ -60,56 +61,30 @@ const LocationDetailsScreen = ({ route }) => {
           }}
         />
         {error && <Text style={styles.errorText}>Image failed to load</Text>}
-      </View>
 
-      {/* -------------------- BORDER LINE -------------------- */}
-      <View style={styles.borderLine} />
+        {/* Borderline below the image */}
+        <View style={styles.imageBorderLine} />
+
+        {/* Rent details below the border */}
+        {location.rentDetails && (
+          <Text style={styles.rentDetails}>{location.rentDetails}</Text>
+        )}
+      </View>
     </ScrollView>
   );
 };
 
-export default LocationDetailsScreen;
+export default LocationDetailsModal;
 
 const styles = StyleSheet.create({
   container: {
     padding: 20,
   },
-  imageContainer: {
-    marginBottom: 15,
-  },
-  image: {
-    width: "100%",
-    height: 230,
-    borderRadius: 15,
-  },
-  loader: {
-    position: "absolute",
-    alignSelf: "center",
-    top: "45%",
-    zIndex: 1,
-  },
-  title: {
-    fontSize: 22,
-    fontWeight: "bold",
-    marginBottom: 8,
-  },
-  address: {
-    color: "#555",
-    marginBottom: 10,
-  },
-  parkingType: {
-    color: "#555",
-    marginBottom: 10,
-  },
-  openingHours: {
-    color: "green",
-    marginBottom: 10,
-  },
-  buttonContainer: {
-    marginTop: 1,
-    alignItems: "center",
-    marginBottom: 10,
-  },
+  title: { fontSize: 22, fontWeight: "bold", marginBottom: 8 },
+  address: { color: "#555", marginBottom: 10 },
+  parkingType: { color: "#555", marginBottom: 10 },
+  openingHours: { color: "green", marginBottom: 10 },
+  buttonContainer: { marginTop: 1, alignItems: "center", marginBottom: 15 },
   customButton: {
     backgroundColor: "#007AFF",
     paddingVertical: 12,
@@ -121,19 +96,11 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 3.84,
   },
-  customButtonText: {
-    color: "#fff",
-    fontSize: 16,
-    fontWeight: "bold",
-  },
-  errorText: {
-    color: "red",
-    marginTop: 8,
-  },
-  borderLine: {
-    height: 2,
-    backgroundColor: "#999",
-    marginVertical: 15,
-    borderRadius: 1,
-  },
+  customButtonText: { color: "#fff", fontSize: 16, fontWeight: "bold" },
+  imageContainer: { position: "relative", marginBottom: 15 },
+  loader: { position: "absolute", alignSelf: "center", top: "45%", zIndex: 1 },
+  image: { width: "100%", height: 230, borderRadius: 15 },
+  imageBorderLine: { borderBottomWidth: 2, borderBottomColor: "#ccc", marginTop: 10 },
+  rentDetails: { marginTop: 30, fontSize: 16, color: "#333", lineHeight: 22 },
+  errorText: { color: "red", marginTop: 8 },
 });
