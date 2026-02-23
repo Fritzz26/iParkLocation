@@ -1,4 +1,3 @@
-// LocationDetailsModal.jsx
 import React, { useState } from "react";
 import {
   View,
@@ -17,8 +16,18 @@ const LocationDetailsModal = ({ location }) => {
 
   if (!location) return null;
 
+  // const openInGoogleMaps = () => {
+  //   const url = `https://www.google.com/maps/search/?api=1&query=${location.latitude},${location.longitude}`;
+  //   Linking.openURL(url);
+  // };
+
   const openInGoogleMaps = () => {
-    const url = `https://www.google.com/maps/search/?api=1&query=${location.latitude},${location.longitude}`;
+    if (!location) return;
+
+    // Encode the name or address to make it URL safe
+    const query = encodeURIComponent(location.name);
+    const url = `https://www.google.com/maps/search/?api=1&query=${query}`;
+
     Linking.openURL(url);
   };
 
@@ -39,7 +48,10 @@ const LocationDetailsModal = ({ location }) => {
     <ScrollView contentContainerStyle={styles.container}>
       <Text style={styles.title}>{location.name}</Text>
       <Text style={styles.address}>{location.address}</Text>
-      <Text style={styles.parkingType}>{location.parkingType}</Text>
+      <Text style={styles.parkingType}>
+        <Text style={{ fontWeight: 'bold' }}>Parking Type: </Text>
+        {location.parkingType}
+      </Text>
       <Text style={styles.openingHours}>{location.openingHours}</Text>
 
       <View style={styles.buttonContainer}>
@@ -65,9 +77,20 @@ const LocationDetailsModal = ({ location }) => {
         {/* Borderline below the image */}
         <View style={styles.imageBorderLine} />
 
-        {/* Rent details below the border */}
         {location.rentDetails && (
-          <Text style={styles.rentDetails}>{location.rentDetails}</Text>
+          <View style={{ marginTop: 0 }}>
+            {location.rentDetails.split("\n\n").map((line, index) => {
+              const [label, ...rest] = line.split(":"); // split at first colon
+              return (
+                <Text style={styles.rentDetails} key={index}>
+                  <Text style={{ fontWeight: "bold" }}>
+                    {label}{rest.length > 0 ? ":" : ""}
+                  </Text>
+                  {rest.length > 0 ? rest.join(":") : ""}
+                </Text>
+              );
+            })}
+          </View>
         )}
       </View>
     </ScrollView>
@@ -80,7 +103,7 @@ const styles = StyleSheet.create({
   container: {
     padding: 20,
   },
-  title: { fontSize: 22, fontWeight: "bold", marginBottom: 8 },
+  title: { fontSize: 22, fontWeight: "bold", marginBottom: 8, marginTop: -20 },
   address: { color: "#555", marginBottom: 10 },
   parkingType: { color: "#555", marginBottom: 10 },
   openingHours: { color: "green", marginBottom: 10 },
