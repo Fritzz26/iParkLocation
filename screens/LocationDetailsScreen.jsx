@@ -3,13 +3,12 @@ import {
   View,
   Text,
   StyleSheet,
-  Button,
   Linking,
   Image,
   ScrollView,
   ActivityIndicator,
+  TouchableOpacity,
 } from "react-native";
-
 
 const LocationDetailsScreen = ({ route }) => {
   const { location } = route.params;
@@ -24,11 +23,10 @@ const LocationDetailsScreen = ({ route }) => {
   // Determine image source: local or remote
   let imageSource;
   if (location.image) {
-    // If the image is a number, it is a local require
     if (typeof location.image === "number") {
-      imageSource = location.image; // local image
+      imageSource = location.image; // local
     } else if (typeof location.image === "string" && location.image.startsWith("http")) {
-      imageSource = { uri: location.image }; // remote image
+      imageSource = { uri: location.image }; // remote
     } else {
       imageSource = { uri: "https://via.placeholder.com/400x250.png?text=No+Image" };
     }
@@ -38,9 +36,19 @@ const LocationDetailsScreen = ({ route }) => {
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
+      <Text style={styles.title}>{location.name}</Text>
+      <Text style={styles.address}>{location.address}</Text>
+      <Text style={styles.parkingType}>{location.parkingType}</Text>
+      <Text style={styles.openingHours}>{location.openingHours}</Text>
+
+      <View style={styles.buttonContainer}>
+        <TouchableOpacity style={styles.customButton} onPress={openInGoogleMaps}>
+          <Text style={styles.customButtonText}>Open in Google Maps</Text>
+        </TouchableOpacity>
+      </View>
+
       <View style={styles.imageContainer}>
         {loading && <ActivityIndicator size="large" style={styles.loader} />}
-
         <Image
           source={imageSource}
           style={styles.image}
@@ -51,19 +59,11 @@ const LocationDetailsScreen = ({ route }) => {
             setError(true);
           }}
         />
-
         {error && <Text style={styles.errorText}>Image failed to load</Text>}
       </View>
 
-      <Text style={styles.title}>{location.name}</Text>
-      <Text style={styles.address}>{location.address}</Text>
-
-      <Text style={styles.coords}>Latitude: {location.latitude}</Text>
-      <Text style={styles.coords}>Longtitude: {location.longitude}</Text>
-
-      <View style={styles.buttonContainer}>
-        <Button title="Open in Google Maps" onPress={openInGoogleMaps} />
-      </View>
+      {/* -------------------- BORDER LINE -------------------- */}
+      <View style={styles.borderLine} />
     </ScrollView>
   );
 };
@@ -75,7 +75,6 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   imageContainer: {
-    position: "relative",
     marginBottom: 15,
   },
   image: {
@@ -98,14 +97,43 @@ const styles = StyleSheet.create({
     color: "#555",
     marginBottom: 10,
   },
-  coords: {
-    marginBottom: 4,
+  parkingType: {
+    color: "#555",
+    marginBottom: 10,
+  },
+  openingHours: {
+    color: "green",
+    marginBottom: 10,
   },
   buttonContainer: {
-    marginTop: 15,
+    marginTop: 1,
+    alignItems: "center",
+    marginBottom: 10,
+  },
+  customButton: {
+    backgroundColor: "#007AFF",
+    paddingVertical: 12,
+    paddingHorizontal: 25,
+    borderRadius: 25,
+    elevation: 3,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+  },
+  customButtonText: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "bold",
   },
   errorText: {
     color: "red",
     marginTop: 8,
+  },
+  borderLine: {
+    height: 2,
+    backgroundColor: "#999",
+    marginVertical: 15,
+    borderRadius: 1,
   },
 });

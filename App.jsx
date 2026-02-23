@@ -13,6 +13,16 @@ const App = () => {
       <Stack.Navigator>
         <Stack.Screen name="iPark Map" component={MapScreen} />
         <Stack.Screen name="Details" component={LocationDetailsScreen} />
+        {/* <Stack.Screen
+          name="Details"
+          component={LocationDetailsScreen}
+          options={{
+            gestureEnabled: true,
+            headerShown: true,
+            animation: "slide_from_bottom",
+            presentation: "modal",
+          }}
+        /> */}
       </Stack.Navigator>
     </NavigationContainer>
   );
